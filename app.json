@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "TaskManagerApp",
+    "slug": "TaskManagerApp",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/YTLogo.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/YTLogo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#F3F3F3F3"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    }
+  }
+}
