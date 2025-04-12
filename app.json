@@ -22,6 +22,17 @@
     },
     "web": {
       "favicon": "./assets/YTLogo.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "84f5a886-419d-46b3-8c6b-1f1bb9f86d80"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/84f5a886-419d-46b3-8c6b-1f1bb9f86d80"
     }
   }
 }
