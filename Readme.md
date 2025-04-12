@@ -46,15 +46,17 @@ A simple and elegant **task management app** built with **React Native** and **F
 - Expo CLI:
 
   ```bash
-  npm install -g expo-cli
+  npm install expo eas-cli
 
 
   Project Structure
-  Copy
-  Edit
-  YourTasks/
+
+  TaskManagerApp/
   ├── components/
-  │   └── TaskItem.js
+  │   └── AddTask.js
+  │   └── LoginFrom.js
+  │   └── RegisterForm.js
+  │   └── TasksList.js
   ├── screens/
   │   ├── HomeScreen.js
   │   ├── AddTaskScreen.js
@@ -70,6 +72,7 @@ A simple and elegant **task management app** built with **React Native** and **F
   ✍️ Author
   Ali Al-Ghazw
   🔗 [GitHub](https://github.com/Ali-Alghazw)
+  🔗 [LinkedIn](https://www.linkedin.com/in/ali-al-ghazw-b373252aa)
 
 📬 Contact
 For any questions or suggestions:
