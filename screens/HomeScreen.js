@@ -1,27 +1,26 @@
-import React, { useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  Button,
-  FlatList,
-  TouchableOpacity,
-  StyleSheet,
-} from 'react-native';
-import { logout } from '../authService';
-import { getTasks, updateTask, deleteTask } from '../taskService';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
+import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import { auth, db } from '../firebase';
 import { useNavigation } from '@react-navigation/native';
 import { doc, getDoc } from 'firebase/firestore';
+import TasksList from '../components/TasksList';
 
 export default function HomeScreen() {
-  const [tasks, setTasks] = useState([]);
   const navigation = useNavigation();
   const [username, setUsername] = useState('');
 
-  const loadTasks = async () => {
-    const fetched = await getTasks();
-    setTasks(fetched);
-  };
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
+          <Text style={{ marginRight: 15, fontSize: 16, color: 'blue' }}>
+            ⚙️
+          </Text>
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation]);
+
   useEffect(() => {
     const loadUsername = async () => {
       const uid = auth.currentUser?.uid;
@@ -37,23 +36,6 @@ export default function HomeScreen() {
 
     loadUsername();
   }, []);
-  useEffect(() => {
-    loadTasks();
-  }, [tasks]);
-
-  const handleToggle = async (task) => {
-    await updateTask(task.id, { completed: !task.completed });
-    loadTasks();
-  };
-
-  const handleDelete = async (id) => {
-    await deleteTask(id);
-    loadTasks();
-  };
-
-  useEffect(() => {
-    loadTasks();
-  }, []);
 
   return (
     <View style={styles.container}>
@@ -67,29 +49,7 @@ export default function HomeScreen() {
         onPress={() => navigation.navigate('AddTask')}
       />
 
-      <FlatList
-        data={tasks}
-        keyExtractor={(item) => item.id}
-        style={{ marginTop: 20 }}
-        renderItem={({ item }) => (
-          <View style={styles.task}>
-            <TouchableOpacity onPress={() => handleToggle(item)}>
-              <Text
-                style={item.completed ? styles.completed : styles.incomplete}
-              >
-                {item.title} ({new Date(item.deadline).toDateString()})
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => handleDelete(item.id)}>
-              <Text style={styles.delete}>🗑️</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-      />
-
-      <View style={{ marginTop: 30 }}>
-        <Button title="Logout" onPress={logout} color="red" />
-      </View>
+      <TasksList />
     </View>
   );
 }
@@ -102,14 +62,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
   },
-  task: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 10,
-    borderBottomColor: '#ddd',
-    borderBottomWidth: 1,
-  },
-  completed: { textDecorationLine: 'line-through', color: 'gray' },
-  incomplete: { color: '#000' },
-  delete: { fontSize: 18 },
 });
