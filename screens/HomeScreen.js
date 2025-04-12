@@ -1,5 +1,12 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react';
-import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  Button,
+  StyleSheet,
+  TouchableOpacity,
+  Pressable,
+} from 'react-native';
 import { auth, db } from '../firebase';
 import { useNavigation } from '@react-navigation/native';
 import { doc, getDoc } from 'firebase/firestore';
@@ -9,19 +16,8 @@ export default function HomeScreen() {
   const navigation = useNavigation();
   const [username, setUsername] = useState('');
 
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
-          <Text style={{ marginRight: 15, fontSize: 16, color: 'blue' }}>
-            ⚙️
-          </Text>
-        </TouchableOpacity>
-      ),
-    });
-  }, [navigation]);
-
   useEffect(() => {
+    //To load the username so it can be displayed in the HomeScreen
     const loadUsername = async () => {
       const uid = auth.currentUser?.uid;
       if (!uid) return;
@@ -39,7 +35,15 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>📝 Task Manager</Text>
+      <View style={styles.header}>
+        <Text style={styles.title}>📝 Task Manager</Text>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Settings')}
+          style={styles.settingsButton}
+        >
+          <Text style={styles.settingsText}>⚙️ Account {'\n    '}Settings</Text>
+        </TouchableOpacity>
+      </View>
       <Text style={styles.welcome}>
         Welcome back, {username || auth.currentUser.email}!
       </Text>
@@ -61,5 +65,14 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
+  },
+  settingsText: {
+    textAlign: 'center',
+    fontSize: 12,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
 });

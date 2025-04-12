@@ -9,7 +9,7 @@ import {
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { auth } from './firebase';
-
+//Tasks Services Logic
 const getUserTasksRef = () => {
   const userId = auth.currentUser.uid;
   return collection(db, 'users', userId, 'tasks');

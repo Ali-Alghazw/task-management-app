@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import { auth, db } from '../firebase';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc } from 'firebase/firestore';
 import {
   signOut,
   updatePassword,
@@ -13,20 +13,18 @@ export default function SettingsScreen({ navigation }) {
   const [username, setUsername] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
-
   const uid = auth.currentUser.uid;
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      const docSnap = await getDoc(doc(db, 'users', uid));
-      if (docSnap.exists()) {
-        setUsername(docSnap.data().username || '');
-      }
-    };
-    fetchUser();
-  }, []);
+  const buttonTitle = () => {
+    //Dynamic titlte for THe button
+    if (username && newPassword) return 'Update User Data';
+    if (username) return 'Update Username';
+    if (newPassword) return 'Update Password';
+    return 'Update Data';
+  };
 
   const handleUpdateUsername = async () => {
+    //To update theusername
     try {
       await updateDoc(doc(db, 'users', uid), { username });
       Alert.alert('Success', 'Username updated!');
@@ -34,8 +32,8 @@ export default function SettingsScreen({ navigation }) {
       Alert.alert('Error', error.message);
     }
   };
-
   const handleUpdatePassword = async () => {
+    //To update the password
     try {
       const user = auth.currentUser;
 
@@ -54,7 +52,11 @@ export default function SettingsScreen({ navigation }) {
       Alert.alert('Error', error.message);
     }
   };
-
+  const handleUpdateInfo = async () => {
+    //To handle both username and password in one click
+    if (username) handleUpdateUsername();
+    if (newPassword) handleUpdatePassword();
+  };
   const handleLogout = async () => {
     await signOut(auth);
     navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
@@ -71,8 +73,6 @@ export default function SettingsScreen({ navigation }) {
         placeholder="Username"
         style={styles.input}
       />
-      <Button title="Update Username" onPress={handleUpdateUsername} />
-
       <Text style={styles.section}>Update Password</Text>
       <TextInput
         value={currentPassword}
@@ -88,7 +88,11 @@ export default function SettingsScreen({ navigation }) {
         secureTextEntry
         style={styles.input}
       />
-      <Button title="Update Password" onPress={handleUpdatePassword} />
+      <Button
+        title={buttonTitle()}
+        onPress={handleUpdateInfo}
+        disabled={!username && !newPassword}
+      />
 
       <View style={{ marginTop: 30 }} />
       <Button title="Logout" color="red" onPress={handleLogout} />

@@ -5,6 +5,7 @@ import { TextInput, Button, StyleSheet } from 'react-native';
 export default function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
   const handleLogin = async () => {
     try {
       await login(email, password);

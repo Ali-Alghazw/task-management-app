@@ -1,22 +1,33 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   View,
   Text,
   FlatList,
   TouchableOpacity,
   StyleSheet,
+  ActivityIndicator,
 } from 'react-native';
 import { getTasks, updateTask, deleteTask } from '../taskService';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 
 export default function TasksList() {
   const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
 
   const loadTasks = async () => {
-    const fetched = await getTasks();
-    setTasks(fetched);
+    //fetching the tasks
+    try {
+      setLoading(true);
+      const fetched = await getTasks();
+      setTasks(fetched);
+    } catch (err) {
+      console.error('Failed to load tasks:', err);
+    } finally {
+      setLoading(false);
+    }
   };
+
   const handleToggle = async (task) => {
     await updateTask(task.id, { completed: !task.completed });
     loadTasks();
@@ -26,12 +37,32 @@ export default function TasksList() {
     await deleteTask(id);
     loadTasks();
   };
+
   const handleEditTask = (task) => {
     navigation.navigate('AddTask', { taskToEdit: task });
   };
-  useEffect(() => {
-    loadTasks();
-  }, [tasks]);
+
+  useFocusEffect(
+    //To rerender the tasks to display the new and updated tasks
+    useCallback(() => {
+      const fetchData = async () => {
+        setLoading(true);
+        await loadTasks();
+        setLoading(false);
+      };
+
+      fetchData();
+    }, [])
+  );
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#007BFF" />
+      </View>
+    );
+  }
+
   return (
     <FlatList
       data={tasks}
@@ -50,7 +81,7 @@ export default function TasksList() {
           <TouchableOpacity onPress={() => handleEditTask(item)}>
             <Text style={styles.edit}>📝</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => handleDelete(item)}>
+          <TouchableOpacity onPress={() => handleDelete(item.id)}>
             <Text style={styles.delete}>🗑️</Text>
           </TouchableOpacity>
         </View>
@@ -58,6 +89,7 @@ export default function TasksList() {
     />
   );
 }
+
 const styles = StyleSheet.create({
   task: {
     flexDirection: 'row',

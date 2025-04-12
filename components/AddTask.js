@@ -21,7 +21,7 @@ export default function AddTask() {
   const navigation = useNavigation();
   const route = useRoute();
 
-  const taskToEdit = route.params?.taskToEdit;
+  const taskToEdit = route.params?.taskToEdit; //checking if this new task or it will update exsting one
 
   const handleAdd = async () => {
     if (!title.trim()) return;
@@ -46,10 +46,9 @@ export default function AddTask() {
 
     navigation.goBack();
   };
+
   useEffect(() => {
-    console.log('Editing task:', taskToEdit);
-  }, []);
-  useEffect(() => {
+    //fetching prev task data (if we are updating)
     if (taskToEdit) {
       setTitle(taskToEdit.title);
       setDeadline(new Date(taskToEdit.deadline));
