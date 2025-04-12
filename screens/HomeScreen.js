@@ -1,28 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import {
   View,
   Text,
   Button,
-  FlatList,
-  TouchableOpacity,
   StyleSheet,
+  TouchableOpacity,
+  Pressable,
 } from 'react-native';
-import { logout } from '../authService';
-import { getTasks, updateTask, deleteTask } from '../taskService';
 import { auth, db } from '../firebase';
 import { useNavigation } from '@react-navigation/native';
 import { doc, getDoc } from 'firebase/firestore';
+import TasksList from '../components/TasksList';
 
 export default function HomeScreen() {
-  const [tasks, setTasks] = useState([]);
   const navigation = useNavigation();
   const [username, setUsername] = useState('');
 
-  const loadTasks = async () => {
-    const fetched = await getTasks();
-    setTasks(fetched);
-  };
   useEffect(() => {
+    //To load the username so it can be displayed in the HomeScreen
     const loadUsername = async () => {
       const uid = auth.currentUser?.uid;
       if (!uid) return;
@@ -37,27 +32,18 @@ export default function HomeScreen() {
 
     loadUsername();
   }, []);
-  useEffect(() => {
-    loadTasks();
-  }, [tasks]);
-
-  const handleToggle = async (task) => {
-    await updateTask(task.id, { completed: !task.completed });
-    loadTasks();
-  };
-
-  const handleDelete = async (id) => {
-    await deleteTask(id);
-    loadTasks();
-  };
-
-  useEffect(() => {
-    loadTasks();
-  }, []);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>📝 Task Manager</Text>
+      <View style={styles.header}>
+        <Text style={styles.title}>📝 Task Manager</Text>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Settings')}
+          style={styles.settingsButton}
+        >
+          <Text style={styles.settingsText}>⚙️ Account {'\n    '}Settings</Text>
+        </TouchableOpacity>
+      </View>
       <Text style={styles.welcome}>
         Welcome back, {username || auth.currentUser.email}!
       </Text>
@@ -67,29 +53,7 @@ export default function HomeScreen() {
         onPress={() => navigation.navigate('AddTask')}
       />
 
-      <FlatList
-        data={tasks}
-        keyExtractor={(item) => item.id}
-        style={{ marginTop: 20 }}
-        renderItem={({ item }) => (
-          <View style={styles.task}>
-            <TouchableOpacity onPress={() => handleToggle(item)}>
-              <Text
-                style={item.completed ? styles.completed : styles.incomplete}
-              >
-                {item.title} ({new Date(item.deadline).toDateString()})
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => handleDelete(item.id)}>
-              <Text style={styles.delete}>🗑️</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-      />
-
-      <View style={{ marginTop: 30 }}>
-        <Button title="Logout" onPress={logout} color="red" />
-      </View>
+      <TasksList />
     </View>
   );
 }
@@ -102,14 +66,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
   },
-  task: {
+  settingsText: {
+    textAlign: 'center',
+    fontSize: 12,
+  },
+  header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 10,
-    borderBottomColor: '#ddd',
-    borderBottomWidth: 1,
+    alignItems: 'center',
   },
-  completed: { textDecorationLine: 'line-through', color: 'gray' },
-  incomplete: { color: '#000' },
-  delete: { fontSize: 18 },
 });
